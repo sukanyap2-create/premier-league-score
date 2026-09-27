@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ตารางคะแนนพรีเมียร์ลีก</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="header-row">
+      <div>
+        <h1>⚽ พรีเมียร์ลีก</h1>
+        <p id="season-info">ฤดูกาล 2026/27</p>
+      </div>
+      <button id="theme-toggle" class="theme-toggle" type="button" aria-label="เปลี่ยนธีม" title="เปลี่ยนธีม">🌙</button>
+    </div>
+  </header>
+  <nav class="tabs" aria-label="เมนูข้อมูลพรีเมียร์ลีก">
+    <button class="tab-button active" type="button" data-tab="standings-view" aria-selected="true">ตารางคะแนน</button>
+    <button class="tab-button" type="button" data-tab="matches-view" aria-selected="false">ผล &amp; โปรแกรมแข่ง</button>
+    <button class="tab-button" type="button" data-tab="scorers-view" aria-selected="false">อันดับดาวซัลโว</button>
+  </nav>
+  <section id="standings-view" class="tab-panel active">
+  <div class="toolbar">
+    <input id="search-input" type="text" placeholder="🔍 ค้นหาทีม..." autocomplete="off">
+    <label class="sort-control" for="sort-select">เรียงตาม</label>
+    <select id="sort-select" aria-label="เรียงตารางคะแนน">
+      <option value="position">อันดับทางการ</option>
+      <option value="points">คะแนน</option>
+      <option value="won">ชนะ</option>
+      <option value="goalDifference">ผลต่างประตู</option>
+      <option value="goalsFor">ยิงได้</option>
+    </select>
+    <span id="refresh-info" class="refresh-info"></span>
+  </div>
+  <div class="algorithm-note">เรียงข้อมูลด้วย Merge Sort · ค้นหาทีมด้วย Hash Table</div>
+  <div id="status" class="status">กำลังโหลดข้อมูล...</div>
+  <div class="card">
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>ทีม</th><th>แข่ง</th><th>ชนะ</th><th>เสมอ</th><th>แพ้</th><th>ได้</th><th>เสีย</th><th>+/-</th><th>คะแนน</th><th>ฟอร์ม</th>
+          </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="legend">
+    <span><span class="dot ucl"></span>โซนแชมเปียนส์ลีก (1-4)</span>
+    <span><span class="dot rel"></span>โซนตกชั้น (18-20)</span>
+    <span class="form-legend"><span class="form-badge form-w">W ชนะ</span><span class="form-badge form-d">D เสมอ</span><span class="form-badge form-l">L แพ้</span></span>
+  </div>
+  </section>
+  <section id="matches-view" class="tab-panel" hidden>
+    <div class="section-toolbar">
+      <h2>ผล &amp; โปรแกรมแข่ง</h2>
+      <label for="matchweek-select">นัดที่</label>
+      <select id="matchweek-select" aria-label="เลือก Matchweek"></select>
+    </div>
+    <div id="matches-status" class="status">กำลังโหลดข้อมูล...</div>
+    <div id="matches-list" class="card match-list"></div>
+  </section>
+  <section id="scorers-view" class="tab-panel" hidden>
+    <div class="section-toolbar"><h2>อันดับดาวซัลโว</h2></div>
+    <div id="scorers-status" class="status">กำลังโหลดข้อมูล...</div>
+    <div class="card tablewrap">
+      <table class="scorers-table">
+        <thead><tr><th>#</th><th>ผู้เล่น</th><th>ทีม</th><th>ประตู (จุดโทษ)</th><th>แอสซิสต์</th></tr></thead>
+        <tbody id="scorers-body"></tbody>
+      </table>
+    </div>
+  </section>
+  <footer>ข้อมูลจาก football-data.org • หากเรียก API ไม่สำเร็จ ระบบจะแสดงข้อมูลสำรองล่าสุดที่มีอยู่ • รีเฟรชอัตโนมัติทุก 2 นาที</footer>
+</div>
+
+<div id="squad-modal" class="modal-overlay" style="display:none;">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2 id="squad-team-name">ทีม</h2>
+      <button id="squad-close" class="modal-close" aria-label="ปิด">✕</button>
+    </div>
+    <div id="squad-body" class="modal-body">
+      <div class="status">กำลังโหลดรายชื่อนักเตะ...</div>
+    </div>
+  </div>
+</div>
+
+<script src="backup-data.js"></script>
+<script src="fixtures-backup.js"></script>
+<script src="squad-backup.js"></script>
+<script src="dsa.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
