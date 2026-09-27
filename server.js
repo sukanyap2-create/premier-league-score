@@ -8,6 +8,8 @@ const API_BASE = 'https://api.football-data.org/v4';
 const CACHE_TTL_MS = 90 * 1000;
 const responseCache = new Map();
 
+app.get('/', (req, res) => res.redirect(302, '/index.html'));
+
 async function proxyFootballData(apiPath, res) {
   const token = process.env.FOOTBALL_DATA_TOKEN;
   if (!token) {
