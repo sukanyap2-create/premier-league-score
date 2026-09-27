@@ -5,6 +5,7 @@ const API_URL = "/api/standings";
 const SCORERS_URL = "/api/scorers";
 const MATCHES_URL = "/api/matches";
 const CACHE_PREFIX = 'pl-cache-v1:';
+const OFFLINE_SINCE_KEY = 'pl-offline-since';
 const BACKUP_DATA = window.PL_BACKUP || null;
 let standingsRows = [];
 let teamSearchIndex = null;
@@ -66,7 +67,30 @@ function cacheSeasonMatches(matches){
 
 function bundledNotice(){
   const savedAt = new Date(BACKUP_DATA.savedAt).toLocaleString('th-TH', { dateStyle:'medium', timeStyle:'short' });
-  return `⚠️ ออฟไลน์: ใช้ชุดข้อมูลสำรองในโปรเจกต์ (อัปเดต ${savedAt})`;
+  return `ใช้ชุดข้อมูลสำรองในโปรเจกต์ (ข้อมูลอัปเดต ${savedAt})`;
+}
+
+function offlineNotice(message){
+  let offlineSince;
+  try{
+    offlineSince = localStorage.getItem(OFFLINE_SINCE_KEY);
+    if(!offlineSince){
+      offlineSince = new Date().toISOString();
+      localStorage.setItem(OFFLINE_SINCE_KEY, offlineSince);
+    }
+  }catch(err){
+    offlineSince = new Date().toISOString();
+  }
+  const formattedTime = new Date(offlineSince).toLocaleString('th-TH', { dateStyle:'medium', timeStyle:'short' });
+  return `⚠️ ออฟไลน์ตั้งแต่ ${formattedTime} · ${message}`;
+}
+
+function clearOfflineSince(){
+  try{
+    localStorage.removeItem(OFFLINE_SINCE_KEY);
+  }catch(err){
+    console.warn('ล้างเวลาออฟไลน์ที่บันทึกไว้ไม่สำเร็จ:', err);
+  }
 }
 
 function readCache(key){
@@ -88,7 +112,7 @@ function writeCache(key, data){
 
 function cacheNotice(cached){
   const savedAt = new Date(cached.savedAt).toLocaleString('th-TH', { dateStyle:'medium', timeStyle:'short' });
-  return `⚠️ ออฟไลน์: ใช้ข้อมูลสำรองที่บันทึกเมื่อ ${savedAt}`;
+  return `ใช้ข้อมูลสำรองที่บันทึกเมื่อ ${savedAt}`;
 }
 
 function initials(name){
@@ -171,11 +195,13 @@ async function load(){
       }
     }
     writeCache('standings', data);
+    clearOfflineSince();
     render(data, true);
   }catch(err){
     console.warn("ดึงข้อมูลสดไม่สำเร็จ, ใช้ข้อมูลสำรอง:", err);
     const cached = readCache('standings');
-    render(cached?.data || bundledStandings(), false, cached ? cacheNotice(cached) : (BACKUP_DATA ? bundledNotice() : '⚠️ ใช้ข้อมูลสำรองในตัว (ยังไม่มีข้อมูลออนไลน์ที่บันทึกไว้)'));
+    const fallbackNotice = cached ? cacheNotice(cached) : (BACKUP_DATA ? bundledNotice() : 'ใช้ข้อมูลสำรองในตัว (ยังไม่มีข้อมูลออนไลน์ที่บันทึกไว้)');
+    render(cached?.data || bundledStandings(), false, offlineNotice(fallbackNotice));
   }
   applySearchFilter();
   updateRefreshInfo();
